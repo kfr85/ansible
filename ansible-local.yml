@@ -1,0 +1,125 @@
+- hosts: localhost
+  connection: local
+  become: yes
+  vars:
+    user: ec2-user
+  tasks:
+    - name: install modules for RedHat
+      yum: >
+        name={{ item }}
+        state=present
+      with_items:
+        - zsh
+        - git
+        - vim
+        - tig
+        - wget
+        - docker
+        - neovim
+        - bzip2-devel
+        - readline-devel
+        - sqlite-devel
+      when: "ansible_os_family == 'RedHat'"
+
+    - name: install modules for Debian
+      apt: >
+        name={{ item }}
+        state=present
+      with_items:
+        - zsh
+        - git
+        - vim
+        - tig
+        - wget
+        - docker
+        - neovim
+        - bzip2-devel
+        - readline-devel
+        - sqlite-devel
+      when: "ansible_os_family == 'Debian'"
+
+    - name: install modules for MacOS
+      homebrew: >
+        name={{ item }}
+        state=present
+      with_items:
+        - zsh
+        - git
+        - vim
+        - tig
+        - wget
+        - docker
+        - neovim
+        - bzip2-devel
+        - readline-devel
+        - sqlite-devel
+      when: "ansible_os_family == 'Darwin'"
+    - name: edit zprofile
+      copy:
+        dest: /home/{{ user }}/.zprofile
+        content: |
+          for i in /etc/profile.d/*.sh ; do
+            [ -r $i ] && source $i
+          done
+
+    - name: change default shell
+      user: >
+        name={{ user }}
+        shell=/usr/bin/zsh
+
+    - name: make directory
+      file: >
+        path=/home/{{ user }}/git/rusagedougawa/dotfiles
+        owner={{ user }}
+        state=directory
+        recurse=yes
+
+    - name: install dotfiles
+      git: >
+        repo=https://github.com/rusagedougawa/dotfiles.git
+        dest=/home/{{ user }}/git/rusagedougawa/dotfiles
+
+    - name: link dotfiles
+      file: >
+        src=/home/{{ user }}/git/rusagedougawa/dotfiles/{{ item.src }}
+        dest=/home/{{ user }}/{{ item.dest }}
+        state=link
+      with_items:
+        - { src: '.zshenv', dest: '.zshenv' }
+        - { src: '.vimrc', dest: '.vimrc' }
+
+    - name: make vim.dein directory
+      file: >
+        dest=/home/{{ user }}/.vim/dein/repos/github.com/Shougo/dein.vim
+        owner={{ user }}
+        state=directory
+        recurse=yes
+
+    - name: make directory
+      file: >
+        path=/home/{{ user }}/.config
+        owner={{ user }}
+        state=directory
+
+    - name: link dotfiles
+      file: >
+        src=/home/{{ user }}/{{ item.src }}
+        dest=/home/{{ user }}/.config/{{ item.dest }}
+        state=link
+      with_items:
+        - { src: '.vim', dest: 'nvim' }
+        - { src: '.vimrc', dest: 'nvim/init.vim' }
+
+    - name: install pyenv
+      git: >
+        repo=https://github.com/yyuu/pyenv.git
+        dest=~/.pyenv
+
+#      - name: add path
+# export PYENV_ROOT=$HOME/.pyenv
+# export PATH=$PYENV_ROOT/bin:$PATH
+# eval "$(pyenv init -)"
+
+# pyenv install 3.6.0
+# pyenv global 3.6.0
+# pip3 install ipython
