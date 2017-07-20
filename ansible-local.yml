@@ -2,8 +2,10 @@
   connection: local
   become: yes
   vars:
-    user: ec2-user
+    local_home: "{{ lookup('env','HOME') }}"
   tasks:
+    - debug:
+        msg: "{{ local_home }}"
     - name: install modules for RedHat
       yum: >
         name={{ item }}
@@ -50,13 +52,17 @@
         - wget
         - docker
         - neovim
-        - bzip2-devel
-        - readline-devel
-        - sqlite-devel
       when: "ansible_os_family == 'Darwin'"
+      become: no
+
+    - name: make directory
+      file: >
+        path=/etc/profile.d
+        state=directory
+        
     - name: edit zprofile
       copy:
-        dest: /home/{{ user }}/.zprofile
+        dest: "{{ local_home }}/.zprofile"
         content: |
           for i in /etc/profile.d/*.sh ; do
             [ -r $i ] && source $i
@@ -69,25 +75,25 @@
 
     - name: change default shell
       user: >
-        name={{ user }}
+        name={{ ansible_env.USER }}
         shell={{ zsh_path.stdout }}
 
     - name: make directory
       file: >
-        path=/home/{{ user }}/git/rusagedougawa/dotfiles
-        owner={{ user }}
+        path={{ local_home }}/git/rusagedougawa/dotfiles
+        owner={{ ansible_env.USER }}
         state=directory
         recurse=yes
 
     - name: install dotfiles
       git: >
         repo=https://github.com/rusagedougawa/dotfiles.git
-        dest=/home/{{ user }}/git/rusagedougawa/dotfiles
+        dest={{ local_home }}/git/rusagedougawa/dotfiles
 
     - name: link dotfiles
       file: >
-        src=/home/{{ user }}/git/rusagedougawa/dotfiles/{{ item.src }}
-        dest=/home/{{ user }}/{{ item.dest }}
+        src={{ local_home }}/git/rusagedougawa/dotfiles/{{ item.src }}
+        dest={{ local_home }}/{{ item.dest }}
         state=link
       with_items:
         - { src: '.zshenv', dest: '.zshenv' }
@@ -95,21 +101,21 @@
 
     - name: make vim.dein directory
       file: >
-        dest=/home/{{ user }}/.vim/dein/repos/github.com/Shougo/dein.vim
-        owner={{ user }}
+        dest={{ local_home }}/.vim/dein/repos/github.com/Shougo/dein.vim
+        owner={{ ansible_env.USER }}
         state=directory
         recurse=yes
 
     - name: make directory
       file: >
-        path=/home/{{ user }}/.config
-        owner={{ user }}
+        path={{ local_home }}/.config
+        owner={{ ansible_env.USER }}
         state=directory
 
     - name: link dotfiles
       file: >
-        src=/home/{{ user }}/{{ item.src }}
-        dest=/home/{{ user }}/.config/{{ item.dest }}
+        src={{ local_home }}/{{ item.src }}
+        dest={{ local_home }}/.config/{{ item.dest }}
         state=link
       with_items:
         - { src: '.vim', dest: 'nvim' }
