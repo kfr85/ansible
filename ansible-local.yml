@@ -62,10 +62,15 @@
             [ -r $i ] && source $i
           done
 
+    - name: which zsh
+      shell: which zsh
+      register: zsh_path
+      changed_when: False
+
     - name: change default shell
       user: >
         name={{ user }}
-        shell=/usr/bin/zsh
+        shell={{ zsh_path.stdout }}
 
     - name: make directory
       file: >
