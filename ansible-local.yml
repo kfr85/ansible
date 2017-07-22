@@ -67,6 +67,7 @@
           for i in /etc/profile.d/*.sh ; do
             [ -r $i ] && source $i
           done
+      become: no
 
     - name: which zsh
       shell: which zsh
@@ -89,6 +90,7 @@
       git: >
         repo=https://github.com/rusagedougawa/dotfiles.git
         dest={{ local_home }}/git/rusagedougawa/dotfiles
+      become: no
 
     - name: link dotfiles
       file: >
@@ -97,7 +99,10 @@
         state=link
       with_items:
         - { src: '.zshenv', dest: '.zshenv' }
+        - { src: '.zsh.d', dest: '.zsh.d' }
         - { src: '.vimrc', dest: '.vimrc' }
+        - { src: '.editorconfig', dest: '.editorconfig' }
+      become: no
 
     - name: make vim.dein directory
       file: >
@@ -105,12 +110,14 @@
         owner={{ ansible_env.USER }}
         state=directory
         recurse=yes
+      become: no
 
     - name: make directory
       file: >
         path={{ local_home }}/.config
         owner={{ ansible_env.USER }}
         state=directory
+      become: no
 
     - name: link dotfiles
       file: >
@@ -120,11 +127,13 @@
       with_items:
         - { src: '.vim', dest: 'nvim' }
         - { src: '.vimrc', dest: 'nvim/init.vim' }
+      become: no
 
     - name: install pyenv
       git: >
         repo=https://github.com/yyuu/pyenv.git
         dest=~/.pyenv
+      become: no
 
 #      - name: add path
 # export PYENV_ROOT=$HOME/.pyenv
