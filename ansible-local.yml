@@ -101,6 +101,7 @@
         - { src: '.zshenv', dest: '.zshenv' }
         - { src: '.zsh.d', dest: '.zsh.d' }
         - { src: '.vimrc', dest: '.vimrc' }
+        - { src: '.config/vim' , dest: '.config/vim' }
         - { src: '.editorconfig', dest: '.editorconfig' }
       become: no
 
