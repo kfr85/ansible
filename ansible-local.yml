@@ -102,7 +102,6 @@
         - { src: '.vimrc', dest: '.vimrc' }
         - { src: '.config/vim' , dest: '.config/vim' }
         - { src: '.editorconfig', dest: '.editorconfig' }
-      become: no
 
     - name: make vim.dein directory
       file: >
