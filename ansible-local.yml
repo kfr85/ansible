@@ -90,7 +90,6 @@
       git: >
         repo=https://github.com/rusagedougawa/dotfiles.git
         dest={{ local_home }}/git/rusagedougawa/dotfiles
-      become: no
 
     - name: link dotfiles
       file: >
