@@ -35,9 +35,6 @@
         - wget
         - docker
         - neovim
-        - bzip2-devel
-        - readline-devel
-        - sqlite-devel
       when: "ansible_os_family == 'Debian'"
 
     - name: install modules for MacOS
