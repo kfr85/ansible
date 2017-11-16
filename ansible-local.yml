@@ -75,6 +75,17 @@
       user: >
         name={{ ansible_env.USER }}
         shell={{ zsh_path.stdout }}
+    
+    - name: make directory
+      file: >
+        path={{ local_home }}/.config
+        state=directory
+      become: no
+    
+    - name: remove directory
+      file: >
+        path={{ local_home }}/.config/vim
+        state=absent
 
     - name: make directory
       file: >
@@ -107,13 +118,6 @@
         owner={{ ansible_env.USER }}
         state=directory
         recurse=yes
-      become: no
-
-    - name: make directory
-      file: >
-        path={{ local_home }}/.config
-        owner={{ ansible_env.USER }}
-        state=directory
       become: no
 
     - name: link dotfiles
